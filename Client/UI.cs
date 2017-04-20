@@ -10,11 +10,19 @@ namespace Client
     {
         public static void DisplayMessage(string message)
         {
-            Console.WriteLine(message);
+            Console.WriteLine(message.Trim('\0'));
         }
         public static string GetInput()
         {
             return Console.ReadLine();
+        }
+        public static void DisplayChatRoomTitle()
+        {
+            Console.WriteLine("-----------------------");
+            Console.WriteLine("-----------------------");
+            Console.WriteLine("------THE CHATROOM-----");
+            Console.WriteLine("-----------------------");
+            Console.WriteLine("-----------------------");
         }
     }
 }

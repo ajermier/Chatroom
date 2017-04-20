@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Server
@@ -12,12 +15,14 @@ namespace Server
         NetworkStream stream;
         TcpClient client;
         public string UserId;
-        public Client(NetworkStream Stream, TcpClient Client)
+        public Client(NetworkStream Stream, TcpClient Client, Dictionary<string, Client> ConnectedClients)
         {
             stream = Stream;
             client = Client;
-            UserId = "495933b6-1762-47a1-b655-483510072e73";
+            UserId = "defaultUser";
         }
+        public bool Connection { get { return client.Connected; } }
+        public TcpClient TCPConn { get { return client; } set { TCPConn = client; } }
         public void Send(string Message)
         {
             byte[] message = Encoding.ASCII.GetBytes(Message);
@@ -25,13 +30,35 @@ namespace Server
         }
         public void Recieve()
         {
+            while (true)
+            {
             byte[] recievedMessage = new byte[256];
-            stream.Read(recievedMessage, 0, recievedMessage.Length);
-            string recievedMessageString = Encoding.ASCII.GetString(recievedMessage);
-            Message message = new Message(null, recievedMessageString);
+            try
+                {
+                    stream.Read(recievedMessage, 0, recievedMessage.Length);
+                }
+            catch
+                {
+                if(Connection == false)
+                {
+                    TCPConn.Close();
+                    Server.RemoveUser(UserId);
+                }   
+                    break;
+                }
+            string recievedMessageString = Encoding.ASCII.GetString(recievedMessage).Trim('\0');
+            Message message = new Message(this, recievedMessageString);
             Server.messageQueue.Enqueue(message);
-            Console.WriteLine(recievedMessageString);
+            Console.WriteLine($"{message.UserId} >> {recievedMessageString}");
+            }
         }
-
+        public void GetUserName()
+        {
+            Send("Enter User Name: ");
+            byte[] recievedID = new byte[256];
+            stream.Read(recievedID, 0, recievedID.Length);
+            string recievedMessageString = Encoding.ASCII.GetString(recievedID).Trim('\0');
+            UserId = recievedMessageString;
+        }
     }
 }
