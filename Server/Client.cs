@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    class Client
+    public class Client
     {
         NetworkStream stream;
         TcpClient client;
         public string UserId;
-        public Client(Logger log, NetworkStream Stream, TcpClient Client, Dictionary<string, Client> ConnectedClients)
+        public Client(ILogger log, NetworkStream Stream, TcpClient Client, Dictionary<string, Client> ConnectedClients)
         {
             stream = Stream;
             client = Client;
@@ -28,7 +28,7 @@ namespace Server
             byte[] message = Encoding.ASCII.GetBytes(Message);
             stream.Write(message, 0, message.Count());
         }
-        public void Recieve(Logger log)
+        public void Recieve(ILogger log)
         {
             while (true)
             {

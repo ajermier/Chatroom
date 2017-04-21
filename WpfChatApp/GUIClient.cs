@@ -8,20 +8,20 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Client
+namespace WpfChatApp
 {
-    public class Client
+    class GUIClient
     {
         TcpClient clientSocket;
         NetworkStream stream;
-        public Client(string IP, int port)
+        public GUIClient(string IP, int port)
         {
             clientSocket = new TcpClient();
             ConnectToServer(IP, port);
         }
         public void ConnectToServer(string IP, int port)
         {
-            Console.Write("Trying to establish connection with chat server...");
+            GuiUI.DisplayMessage("Trying to establish connection with chat server...");
             while (clientSocket.Connected == false)
             {
                 try
@@ -30,28 +30,27 @@ namespace Client
                 }
                 catch
                 {
-                    Console.Write(".");
+                    GuiUI.DisplayMessage(".");
                 }
             }
-            Console.WriteLine("Connected!");
+            GuiUI.DisplayMessage("Connected!");
             stream = clientSocket.GetStream();
-            Console.WriteLine();
+            GuiUI.DisplayMessage("\n");
             SendRecieve();
         }
         public void Send()
         {
             while (true)
             {
-            string messageString = UI.GetInput();
-            byte[] message = Encoding.ASCII.GetBytes(messageString);
-            try
-            {
-                stream.Write(message, 0, message.Length);
-            }
-            catch
-            {
-                break;
-            }
+                byte[] message = Encoding.ASCII.GetBytes(GuiUI.GetInput());
+                try
+                {
+                    stream.Write(message, 0, message.Length);
+                }
+                catch
+                {
+                    break;
+                }
             }
         }
         public void Recieve()
@@ -67,16 +66,17 @@ namespace Client
                 {
                     break;
                 }
-                UI.DisplayMessage(Encoding.ASCII.GetString(recievedMessage));
+                GuiUI.DisplayMessage(Encoding.ASCII.GetString(recievedMessage));
             }
 
         }
         public void SendRecieve()
         {
-            UI.DisplayChatRoomTitle();
             Thread clientRecieve = new Thread(() => Recieve());
             clientRecieve.Start();
             Send();
         }
     }
+
 }
+

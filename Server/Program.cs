@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            Logger chatLogTxt = new Logger();
+            TxtLogger chatLogTxt = new TxtLogger();
             new Server(chatLogTxt);
         }
     }

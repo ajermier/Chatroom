@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 namespace Server
 {
-    class Logger : ILogger
+    public class TxtLogger : ILogger
     {
         public void Log(string item, string UserId)
         {

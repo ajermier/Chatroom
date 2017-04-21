@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    interface ILogger
+    public interface ILogger
     {
         void Log(string item, string UserId);
     }

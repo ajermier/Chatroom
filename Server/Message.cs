@@ -8,13 +8,13 @@ using System.IO;
 
 namespace Server
 {
-    class Message
+    public class Message
     {
         public Client sender;
         public string Body;
         public string UserId;
 
-        public Message(Logger log, Client Sender, string Body)
+        public Message(ILogger log, Client Sender, string Body)
         {
             sender = Sender;
             this.Body = Body;

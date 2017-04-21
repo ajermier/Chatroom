@@ -11,15 +11,17 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    class Server
+    public class Server
     {
         public static ConcurrentQueue<Message> messageQueue = new ConcurrentQueue<Message>();
         private static Dictionary<string, Client> connectedClients;
         private TcpListener server;
-        public Server(Logger log)
+        private ILogger log;
+        public Server(ILogger log)
         {
             int port = 9999;
             string ipAddress = "127.0.0.1";
+            this.log = log;
             connectedClients = new Dictionary<string, Client>();
             try
             {
@@ -32,7 +34,7 @@ namespace Server
             StartServer(log, ipAddress, port);
             PromptToStopServer(log);
         }
-        public void StartServer(Logger log, string ipAddress, int port)
+        public void StartServer(ILogger log, string ipAddress, int port)
         {
             Thread respondThread = new Thread(() => Respond(connectedClients));
             respondThread.Start();
@@ -41,7 +43,7 @@ namespace Server
             Task a = new Task(() => Run(log));
             a.Start();
         }
-        public void PromptToStopServer(Logger log)
+        public void PromptToStopServer(ILogger log)
         {
             Console.WriteLine("Press ESC key to close.");
             if (Console.ReadKey(true).Key == ConsoleKey.Escape)
@@ -55,7 +57,7 @@ namespace Server
                 Environment.Exit(0);
             }
         }
-        public async void Run(Logger log)
+        public async void Run(ILogger log)
         {
             while (true)
             {
@@ -74,7 +76,7 @@ namespace Server
                 }
             }
         }
-		private async void AcceptClient(Logger log, TcpClient newClient)
+		private async void AcceptClient(ILogger log, TcpClient newClient)
 		{
             try
             {
@@ -89,7 +91,7 @@ namespace Server
                 Console.WriteLine("User disconnected.");
             }
         }
-        private async Task CheckUserName(Logger log, Client client)
+        private async Task CheckUserName(ILogger log, Client client)
         {
             client.GetUserName();
             if (!connectedClients.ContainsKey(client.UserId))
@@ -141,7 +143,7 @@ namespace Server
                 client.Send("One is the loneliest number...");
             }
         }
-        public static void RemoveUser(Logger log, string userID)
+        public static void RemoveUser(ILogger log, string userID)
         {
             connectedClients.Remove(userID);
             Message message = new Message(log, null, $"{userID} has left the chat.");

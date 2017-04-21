@@ -1,0 +1,17 @@
+﻿<Window x:Class="WpfChatApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfChatApp"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid Background="#FFAF2C2C">
+        <TextBox Height="231" HorizontalAlignment="Left" Margin="11,38,0,0" Name="chatBox" VerticalAlignment="Top" Width="479" IsReadOnly="True" VerticalScrollBarVisibility="Visible" />
+        <Label Content="User Name:" Height="28" HorizontalAlignment="Left" Margin="126,3,0,0" Name="label4" VerticalAlignment="Top" RenderTransformOrigin="-2.952,0.452" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="202,6,0,0" Name="localName" VerticalAlignment="Top" Width="117" Text="" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="11,274,0,0" Name="messageText" VerticalAlignment="Top" Width="356" />
+        <Button Content="Send" Height="23" HorizontalAlignment="Left" Margin="373,274,0,0" Name="sendMessageButton" VerticalAlignment="Top" Width="117" />
+        <Button Content="Connect" Height="23" HorizontalAlignment="Left" Margin="332,6,0,0" x:Name="connectionButton" VerticalAlignment="Top" Width="117" RenderTransformOrigin="0.165,-5.797" Click="connectionButtonClick"/>
+    </Grid>
+</Window>
