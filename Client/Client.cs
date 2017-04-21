@@ -17,8 +17,26 @@ namespace Client
         public Client(string IP, int port)
         {
             clientSocket = new TcpClient();
-            clientSocket.Connect(IPAddress.Parse(IP), port);
+            ConnectToServer(IP, port);
+        }
+        public void ConnectToServer(string IP, int port)
+        {
+            Console.Write("Trying to establish connection with chat server...");
+            while (clientSocket.Connected == false)
+            {
+                try
+                {
+                    clientSocket.Connect(IPAddress.Parse(IP), port);
+                }
+                catch
+                {
+                    Console.Write(".");
+                }
+            }
+            Console.WriteLine("Connected!");
             stream = clientSocket.GetStream();
+            Console.WriteLine();
+            SendRecieve();
         }
         public void Send()
         {

@@ -8,32 +8,18 @@ using System.IO;
 
 namespace Server
 {
-    class Message : ILogger
+    class Message
     {
         public Client sender;
         public string Body;
         public string UserId;
 
-        public Message(Client Sender, string Body)
+        public Message(Logger log, Client Sender, string Body)
         {
             sender = Sender;
             this.Body = Body;
             UserId = sender?.UserId;
-            Logger(this.Body, UserId);
-        }
-        public void Logger(string item, string UserId)
-        {
-            DateTime date = DateTime.Now;
-            string itemDate = date.ToString();
-            string LogFile = ".\\ChatLog.txt";
-            try
-            {
-                File.AppendAllText(LogFile, $"{itemDate} {UserId} >> {item}" + Environment.NewLine);
-            }
-            catch
-            {
-                Console.WriteLine("Problem writing/accessing log file.");
-            }
+            log.Log(this.Body, UserId);
         }
     }
 }

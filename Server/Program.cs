@@ -10,8 +10,8 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            new Server();
-            Console.ReadLine();
+            Logger chatLogTxt = new Logger();
+            new Server(chatLogTxt);
         }
     }
 }

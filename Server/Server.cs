@@ -15,8 +15,8 @@ namespace Server
     {
         public static ConcurrentQueue<Message> messageQueue = new ConcurrentQueue<Message>();
         private static Dictionary<string, Client> connectedClients;
-        TcpListener server;
-        public Server()
+        private TcpListener server;
+        public Server(Logger log)
         {
             int port = 9999;
             string ipAddress = "127.0.0.1";
@@ -29,26 +29,25 @@ namespace Server
             {
                 Console.WriteLine(e.ToString());
             }
-            StartServer(ipAddress, port);
-            PromptToStopServer();
+            StartServer(log, ipAddress, port);
+            PromptToStopServer(log);
         }
-        public void StartServer(string ipAddress, int port)
+        public void StartServer(Logger log, string ipAddress, int port)
         {
             Thread respondThread = new Thread(() => Respond(connectedClients));
             respondThread.Start();
             server.Start();
-            Console.WriteLine($"Listening on {ipAddress} PORT: {port} for clients...");
-            Message serverStartedMessage = new Message(null, "Server Connected...listening for clients.");
-            Task a = new Task(() => Run());
+            Message serverStartedMessage = new Message(log, null, $"Listening on {ipAddress} PORT: {port} for clients...");
+            Task a = new Task(() => Run(log));
             a.Start();
         }
-        public void PromptToStopServer()
+        public void PromptToStopServer(Logger log)
         {
             Console.WriteLine("Press ESC key to close.");
             if (Console.ReadKey(true).Key == ConsoleKey.Escape)
             {
                 Console.WriteLine("Notifying active users server disconnected...");
-                Message serverStoppingMessage = new Message(null, "Server Disconnected.");
+                Message serverStoppingMessage = new Message(log, null, "Server Disconnected.");
                 messageQueue.Enqueue(serverStoppingMessage);
                 Thread.Sleep(2000);
                 Console.WriteLine("Closing Server...");
@@ -56,7 +55,7 @@ namespace Server
                 Environment.Exit(0);
             }
         }
-        public async void Run()
+        public async void Run(Logger log)
         {
             while (true)
             {
@@ -66,7 +65,7 @@ namespace Server
                     TcpClient clientSocket = default(TcpClient);
                     clientSocket = await server.AcceptTcpClientAsync();
                     Console.WriteLine("Attempting connection with new client");
-                    Thread clientThread = new Thread(() => AcceptClient(clientSocket));
+                    Thread clientThread = new Thread(() => AcceptClient(log, clientSocket));
                     clientThread.Start();
                 }
                 catch (SocketException e)
@@ -75,14 +74,14 @@ namespace Server
                 }
             }
         }
-		private async void AcceptClient(TcpClient newClient)
+		private async void AcceptClient(Logger log, TcpClient newClient)
 		{
             try
             {
                 NetworkStream stream = newClient.GetStream();
-                Client client = new Client(stream, newClient, connectedClients);
-                await CheckUserName(client);
-                Task b = new Task(() => client.Recieve());
+                Client client = new Client(log, stream, newClient, connectedClients);
+                await CheckUserName(log, client);
+                Task b = new Task(() => client.Recieve(log));
                 b.Start();
             }
             catch
@@ -90,21 +89,20 @@ namespace Server
                 Console.WriteLine("User disconnected.");
             }
         }
-        private async Task CheckUserName(Client client)
+        private async Task CheckUserName(Logger log, Client client)
         {
             client.GetUserName();
             if (!connectedClients.ContainsKey(client.UserId))
             {
                 connectedClients.Add(client.UserId, client);
-                Console.WriteLine($"{client.UserId} is online");
                 ShowOnlineUsers(client);
-                Message message = new Message(null, $"{client.UserId} is online");
+                Message message = new Message(log, null, $"{client.UserId} is online");
                 messageQueue.Enqueue(message);
             }
             else
             {
                 client.Send("User name already in use. Try another.\n");
-                await CheckUserName(client);
+                await CheckUserName(log, client);
             }
             Console.WriteLine($"{connectedClients.Count()} users active.");
         }
@@ -143,11 +141,10 @@ namespace Server
                 client.Send("One is the loneliest number...");
             }
         }
-        public static void RemoveUser(string userID)
+        public static void RemoveUser(Logger log, string userID)
         {
             connectedClients.Remove(userID);
-            Console.WriteLine($"{userID} disconnected.");
-            Message message = new Message(null, $"{userID} has left the chat.");
+            Message message = new Message(log, null, $"{userID} has left the chat.");
             messageQueue.Enqueue(message);
         }
     }

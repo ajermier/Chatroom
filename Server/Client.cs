@@ -15,7 +15,7 @@ namespace Server
         NetworkStream stream;
         TcpClient client;
         public string UserId;
-        public Client(NetworkStream Stream, TcpClient Client, Dictionary<string, Client> ConnectedClients)
+        public Client(Logger log, NetworkStream Stream, TcpClient Client, Dictionary<string, Client> ConnectedClients)
         {
             stream = Stream;
             client = Client;
@@ -28,7 +28,7 @@ namespace Server
             byte[] message = Encoding.ASCII.GetBytes(Message);
             stream.Write(message, 0, message.Count());
         }
-        public void Recieve()
+        public void Recieve(Logger log)
         {
             while (true)
             {
@@ -42,14 +42,13 @@ namespace Server
                 if(Connection == false)
                 {
                     TCPConn.Close();
-                    Server.RemoveUser(UserId);
+                    Server.RemoveUser(log, UserId);
                 }   
                     break;
                 }
             string recievedMessageString = Encoding.ASCII.GetString(recievedMessage).Trim('\0');
-            Message message = new Message(this, recievedMessageString);
+            Message message = new Message(log, this, recievedMessageString);
             Server.messageQueue.Enqueue(message);
-            Console.WriteLine($"{message.UserId} >> {recievedMessageString}");
             }
         }
         public void GetUserName()

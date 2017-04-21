@@ -9,6 +9,6 @@ namespace Server
 {
     interface ILogger
     {
-        void Logger(string item, string UserId);
+        void Log(string item, string UserId);
     }
 }
