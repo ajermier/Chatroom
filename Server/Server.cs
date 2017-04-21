@@ -14,7 +14,6 @@ namespace Server
     class Server
     {
         public static ConcurrentQueue<Message> messageQueue = new ConcurrentQueue<Message>();
-        public static Client client;
         private static Dictionary<string, Client> connectedClients;
         TcpListener server;
         public Server()
@@ -30,17 +29,32 @@ namespace Server
             {
                 Console.WriteLine(e.ToString());
             }
-            try
-            {
-                server.Start();
-                Console.WriteLine($"Listening on {ipAddress} PORT: {port} for clients...");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
+            StartServer(ipAddress, port);
+            PromptToStopServer();
+        }
+        public void StartServer(string ipAddress, int port)
+        {
             Thread respondThread = new Thread(() => Respond(connectedClients));
             respondThread.Start();
+            server.Start();
+            Console.WriteLine($"Listening on {ipAddress} PORT: {port} for clients...");
+            Message serverStartedMessage = new Message(null, "Server Connected...listening for clients.");
+            Task a = new Task(() => Run());
+            a.Start();
+        }
+        public void PromptToStopServer()
+        {
+            Console.WriteLine("Press ESC key to close.");
+            if (Console.ReadKey(true).Key == ConsoleKey.Escape)
+            {
+                Console.WriteLine("Notifying active users server disconnected...");
+                Message serverStoppingMessage = new Message(null, "Server Disconnected.");
+                messageQueue.Enqueue(serverStoppingMessage);
+                Thread.Sleep(2000);
+                Console.WriteLine("Closing Server...");
+                Thread.Sleep(2000);
+                Environment.Exit(0);
+            }
         }
         public async void Run()
         {

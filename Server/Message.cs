@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Server
 {
-    class Message
+    class Message : ILogger
     {
         public Client sender;
         public string Body;
@@ -19,16 +19,16 @@ namespace Server
             sender = Sender;
             this.Body = Body;
             UserId = sender?.UserId;
-            Logger(this.Body);
+            Logger(this.Body, UserId);
         }
-        public static void Logger(string item)
+        public void Logger(string item, string UserId)
         {
             DateTime date = DateTime.Now;
             string itemDate = date.ToString();
             string LogFile = ".\\ChatLog.txt";
             try
             {
-                File.AppendAllText(LogFile, $"{itemDate} - {item}" + Environment.NewLine);
+                File.AppendAllText(LogFile, $"{itemDate} {UserId} >> {item}" + Environment.NewLine);
             }
             catch
             {

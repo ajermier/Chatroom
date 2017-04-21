@@ -7,11 +7,8 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    static class Logger
+    interface ILogger
     {
-
-
-
-
+        void Logger(string item, string UserId);
     }
 }
